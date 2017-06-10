@@ -1,0 +1,416 @@
+> # Bloco: Business Intelligence e Big Data Analytics: Valor
+> # Disciplina: Big Data Analytics com R
+> # Prediction Phase
+> 
+> #clear environment
+> rm(list=ls())
+> #clear Console = ctrl+l
+> 
+> 
+> # -------------------------
+> # necessary packages
+> # -------------------------
+> 
+> # install.packages("party", dependencies=TRUE)
+> # install.packages("rpart", dependencies=TRUE)
+> # install.packages("rpart.plot", dependencies=TRUE)
+> # install.packages("rattle", dependencies=TRUE)
+> # install.packages("RWeka", dependencies=TRUE)
+> # install.packages("ipred", dependencies=TRUE)
+> # install.packages("randomForest", dependencies=TRUE)
+> # install.packages("C50", dependencies=TRUE)
+> # install.packages("RColorBrewer", dependencies=TRUE)
+> 
+> # loading packages
+> library(rpart) # decision trees
+> library(rpart.plot) # decision trees visualization
+> library(rattle)	# Visualization
+> library(party) # decision trees
+> library(dplyr) # bind rows
+> library(RWeka) # Algoritmos J48 e PART.
+> library(ipred) # Bagging.
+> library(randomForest) # Random Forest.
+> library(C50) # Algoritmo C5.0.
+> library(stringr) # string manipulation
+> library(stringr) # string manipulation
+> require('RColorBrewer') # color paletes for graphs
+> 
+> # SET THE HOME DIR FOR WINDOWS OR LINUX ENVIRONMENTS
+> homeDir='C:/Users/Carlos/Documents/MEGAsync/MIT/Modulo_A_Valor/Atual/infnet_moduloA/'
+> #homeDir='/home/carlos/MEGAsync/MIT/infnet_moduloA/' 
+> setwd(homeDir)
+> 
+> # loading common functions
+> source('functions/fn_load_data.R') # calculate prediction metrics
+> source('functions/fn_prediction_metrics.R') # calculate prediction metrics
+> source('functions/fn_model_randomForest.R') # train and run model randomForest
+> 
+> # functions used only in this script
+> openPNG <- function(imagename){
++   png(filename = paste(getwd(),'/graphs/',imagename,'.png', sep = ''),
++       width = 670, height = 379)
++ }
+> 
+> 
+> model_ctree <- function(train, test, formula) {
++   # -------------------------
++   # Decision trees
++   # -------------------------
++ 
++   # Train the model
++   # Conditional Inference Trees {party}
++   fit_ctree <- ctree(formula, data=train)
++   
++   # Confusion????? matrix to check the model's prediction capacity.
++   #table(predict(fit_ctree), train$UNS)
++   
++   # Printing the model's rule and showing the tree
++   # what is the p inside the tree node
++   #print(fit_ctree)
++   #plot(fit_ctree)
++   
++   # Anothe tree - simpler
++   #plot(fit_ctree, type="simple")
++   
++   # Testando o modelo no conjunto de testes
++   predict(fit_ctree, newdata = test)
++   #table(testPred, test$UNS)
++ }
+> 
+> model_rpart <- function(train, test, formula) {
++   # -------------------------
++   # Train a model using rpart.
++   # Recursive Partitioning and Regression Trees
++   # -------------------------
++   fit_rpart <- rpart(formula, data=train)
++   # Resumo.
++   #summary(fit_rpart)
++   
++   # Make predictions
++   # The parameter "type='class'" is used for classification trees
++   #predictions <- predict(fit_rpart, train[,1:5], type="class")
++   
++   # Confusion??? matrix for the model
++   #table(predictions, train$UNS)
++   
++   # Make predictions
++   # The parameter "type='class'" is used for classification trees
++   predict(fit_rpart, test, type="class")
++   
++   # Confusion??? matrix for the predictions
++   #table(predictions, test$UNS)
++   
++   # Printing the rules
++   #print(fit_rpart)
++   
++   # Graph with 'rpart.plot'.
++   #prp(fit_rpart)
++   
++   # Graph with 'rattle'.
++   #fancyRpartPlot(fit_rpart)
++ }
+> 
+> model_J48 <- function(train, test, formula) {
++   # -------------------------
++   # ALGORITMO C4.5
++   # Cria a árvore de forma a maximixar o ganho de informação (information gain)
++   # (diferença de entropia). Chamado de J48 no Weka.
++   # Entropia: quantidade necessária de informação para identificar a classe de um caso
++   # Ganho de informação: é a redução esperada da entropia ao utilizarmos um atributo na árvore.
++   # Bom post explicativo (inglês): http://stackoverflow.com/questions/1859554/what-is-entropy-and-information-gain
++   # -------------------------
++   
++   # Criando o modelo.
++   fit_J48 <- J48(formula, data=train)
++   # Resumo.
++   #summary(fit_J48)
++   # Fazendo predições.
++   predict(fit_J48, test)
++   # Matriz de confusão das predições.
++   #table(predictions, test$UNS)
++   # Gráfico da árvore.
++   #plot(fit_J48)
++ }
+> 
+> model_PART <- function(train, test, formula) {
++   # -------------------------
++   # PART
++   # Sistema de regras que cria árvores de decisão C4.5 podadas e extrai regras, retirando
++   # então os dados podados do conjunto de treinamento. O processo é repetido até que 
++   # todas as instâncias sejam cobertas pelas regras extraídas.
++   # 
++   # Sem visualização com gráfico!
++   # -------------------------
++   
++   # Criando o modelo.
++   fit_PART <- PART(formula, data=train)
++   # Resumo.
++   #summary(fit_PART)
++   # Fazendo predições.
++   predict(fit_PART, test)
++   # Matriz de confusão das predições.
++   #table(predictions, test$UNS)
++   #plot(fit_PART)
++ }
+> 
+> model_bagging <- function(train, test, formula) {
++   # -------------------------
++   # BAGGING CART
++   # Bootstrapped Aggregation (Bagging) é um método ensemble, ou seja,
++   # cria múltiplos modelos do mesmo tipo a partir de amostras diferentes 
++   # do conjunto completo de dados. Os resultados de cada modelo separado 
++   # são combinados para oferecer um resultado melhor.
++   # Sem visualização com gráfico!
++   # -------------------------
++   # Criando o modelo.
++   fit_bagging <- bagging(formula, data=train)
++   # Resumo.
++   #summary(fit_bagging)
++   # Fazendo predições.
++   predict(fit_bagging, test, type="class")
++   # Matriz de confusão das predições.
++   #table(predictions4, test$UNS)
++ }
+> 
+> model_C5.0 <- function(train, test, formula) {
++   # -------------------------
++   # ALGORITMO C5.0
++   # Evolução do algoritmo C4.5 que teve seu código fonte liberado recentemente.
++   # -------------------------
++   # Criando o modelo.
++   # p parâmetro 'trials' indica o número de iterações desejado.
++   fit_C5.0 <- C5.0(formula, data=train, trials=10)
++   # Resumo.
++   #print(fit_C5.0)
++   # Fazendo predições.
++   predict(fit_C5.0, test)
++   # Gráfico da árvore.
++   #plot(fit_C5.0)
++ }
+> 
+> # -------------------------
+> # MAIN
+> # -------------------------
+> 
+> # load data sets
+> load_data()
+[1] "Data Sets Loaded"
+> 
+> # variables to store results
+> i <- 0
+> model_names <- c()
+> model_accuracies <- c()
+> 
+> # Setting seed for run
+> set.seed(12345)
+> 
+> # -------------------------
+> # Decision trees
+> # -------------------------
+> # Formula for ctree
+> # Specifying UNS as the dependent variable and the others are undependent 
+> #myFormulactree <- UNS ~ STG + SCG + STR + LPR + PEG
+> # Formula for dependent variable
+> # Specifying UNS as the dependent variable and the others are undependent 
+> myFormula <- UNS~.
+> 
+> # -------------------------
+> # Decision trees
+> # -------------------------
+> #run model - Calculate and print metrics
+> i <- i + 1
+> model_names[i] <- 'ctree'
+> model_accuracies[i] <- prediction_metrics(model_ctree(train, testx, myFormula), testy)
+[1] "Accuracy: 0.9103"
+         precision recall     f1
+Very Low 1.0000000 0.8077 0.8936
+Low      0.8400000 0.9130 0.8750
+Middle   0.8823529 0.8824 0.8824
+High     0.9750000 1.0000 0.9873
+> # -------------------------
+> # Train a model using rpart.
+> # Recursive Partitioning and Regression Trees
+> # -------------------------
+> #run model - Calculate and print metrics
+> i <- i + 1
+> model_names[i] <- 'rpart'
+> model_accuracies[i] <- prediction_metrics(model_rpart(train, testx, myFormula), testy)
+[1] "Accuracy: 0.9103"
+         precision recall     f1
+Very Low 1.0000000 0.8077 0.8936
+Low      0.8400000 0.9130 0.8750
+Middle   0.8823529 0.8824 0.8824
+High     0.9750000 1.0000 0.9873
+> 
+> # -------------------------
+> # ALGORITMO C4.5
+> # Cria a árvore de forma a maximixar o ganho de informação (information gain)
+> # -------------------------
+> #run model - Calculate and print metrics
+> i <- i + 1
+> model_names[i] <- 'J48'
+> model_accuracies[i] <- prediction_metrics(model_J48(train, testx, myFormula), testy)
+[1] "Accuracy: 0.9103"
+         precision recall     f1
+Very Low 0.9200000 0.8846 0.9020
+Low      0.8695652 0.8696 0.8696
+Middle   0.8823529 0.8824 0.8824
+High     0.9750000 1.0000 0.9873
+> 
+> # -------------------------
+> # PART
+> # Sistema de regras que cria árvores de decisão C4.5 podadas e extrai regras
+> # -------------------------
+> #run model - Calculate and print metrics
+> i <- i + 1
+> model_names[i] <- 'PART'
+> model_accuracies[i] <- prediction_metrics(model_PART(train, testx, myFormula), testy)
+[1] "Accuracy: 0.8966"
+         precision recall     f1
+Very Low 0.8275862 0.9231 0.8727
+Low      0.8809524 0.8043 0.8409
+Middle   0.8823529 0.8824 0.8824
+High     0.9750000 1.0000 0.9873
+> 
+> # -------------------------
+> # BAGGING CART
+> # Bootstrapped Aggregation (Bagging)
+> # -------------------------
+> #run model - Calculate and print metrics
+> i <- i + 1
+> model_names[i] <- 'bagging'
+> model_accuracies[i] <- prediction_metrics(model_bagging(train, testx, myFormula), testy)
+[1] "Accuracy: 0.5034"
+         precision recall     f1
+High     0.0000000 0.0000    NaN
+Low      0.8600000 0.9348 0.8958
+Middle   0.8108108 0.8824 0.8451
+Very Low 0.0000000 0.0000    NaN
+> 
+> # -------------------------
+> # RANDOM FOREST
+> # Variação do Bagging de árvores de decisao
+> # -------------------------
+> #run model - Calculate and print metrics
+> i <- i + 1
+> model_names[i] <- 'randomForest'
+> model_accuracies[i] <- prediction_metrics(model_randomForest(train, testx, myFormula), testy)
+[1] "Accuracy: 0.9517"
+         precision recall     f1
+Very Low 1.0000000 0.8846 0.9388
+Low      0.8823529 0.9783 0.9278
+Middle   0.9687500 0.9118 0.9394
+High     1.0000000 1.0000 1.0000
+> 
+> # -------------------------
+> # ALGORITMO C5.0
+> # Evolução do algoritmo C4.5 que teve seu código fonte liberado recentemente.
+> # -------------------------
+> #run model - Calculate and print metrics
+> i <- i + 1
+> model_names[i] <- 'C5.0'
+> model_accuracies[i] <- prediction_metrics(model_C5.0(train, testx, myFormula), testy)
+[1] "Accuracy: 0.9172"
+         precision recall     f1
+Very Low 0.9600000 0.9231 0.9412
+Low      0.8888889 0.8696 0.8791
+Middle   0.8571429 0.8824 0.8696
+High     0.9750000 1.0000 0.9873
+> 
+> result <- data.frame(model_names, model_accuracies)
+> result
+   model_names model_accuracies
+1        ctree           0.9103
+2        rpart           0.9103
+3          J48           0.9103
+4         PART           0.8966
+5      bagging           0.5034
+6 randomForest           0.9517
+7         C5.0           0.9172
+> 
+> fit_randomForest <- randomForest(myFormula, data=train, importance=TRUE)
+> yhat <- predict(fit_randomForest, testx)
+> ydiff <- as.character(yhat)==as.character(testy)
+> print(fit_randomForest)
+
+Call:
+ randomForest(formula = myFormula, data = train, importance = TRUE) 
+               Type of random forest: classification
+                     Number of trees: 500
+No. of variables tried at each split: 2
+
+        OOB estimate of  error rate: 6.98%
+Confusion matrix:
+         Very Low Low Middle High class.error
+Very Low       18   6      0    0  0.25000000
+Low             0  79      4    0  0.04819277
+Middle          0   6     81    1  0.07954545
+High            0   0      1   62  0.01587302
+> print(fit_randomForest$importance)
+        Very Low          Low       Middle         High MeanDecreaseAccuracy MeanDecreaseGini
+STG  0.011907684  0.032827347  0.010726425  0.017821758          0.019569921         14.56024
+SCG  0.042737973  0.003116893 -0.001048041 -0.003211815          0.003273704         12.81923
+STR -0.009294539 -0.000989869  0.001685575 -0.002338694         -0.001286801         10.46100
+LPR  0.081212662  0.110909429  0.159167870  0.105719000          0.123557935         31.84882
+PEG  0.481221406  0.475756156  0.431186093  0.548952523          0.475670678        113.12538
+> yy <- data.frame(testx, testy, yhat, ydiff)
+> 
+> #yy
+> randomForestImportance <- fit_randomForest$importance
+> MeanDecreaseAccuracy <- randomForestImportance[1:5, 5]
+> MeanDecreaseGini <- randomForestImportance[1:5, 6]
+> 
+> # Opens the graphics file
+> openPNG('09_barplot_MeanDecreaseAccuracy')
+> barplot(MeanDecreaseAccuracy[order(MeanDecreaseAccuracy, decreasing = TRUE)],
++         col = brewer.pal(5,'Accent'),
++         main = 'Mean Decreased Accuracy')
+> dev.off()
+null device 
+          1 
+> 
+> # Opens the graphics file
+> openPNG('10_barplot_MeanDecreaseGini')
+> barplot(MeanDecreaseGini[order(MeanDecreaseGini, decreasing = TRUE)],
++     col = brewer.pal(5,'Dark2'),
++     main = 'Mean Decreased Gini')
+> dev.off()
+null device 
+          1 
+> 
+> 
+> # Setting seed for run
+> set.seed(12345)
+> myFormula <- UNS~PEG+LPR
+> prediction_metrics(model_randomForest(train, testx, myFormula), testy)
+[1] "Accuracy: 0.9517"
+         precision recall     f1
+Very Low 1.0000000 0.9231 0.9600
+Low      0.8823529 0.9783 0.9278
+Middle   0.9677419 0.8824 0.9231
+High     1.0000000 1.0000 1.0000
+[1] 0.9517
+> set.seed(12345)
+> fit_randomForest <- randomForest(myFormula, data=train, importance=TRUE)
+> set.seed(12345)
+> yhat <- predict(fit_randomForest, testx)
+> ydiff <- as.character(yhat)==as.character(testy)
+> print(fit_randomForest)
+
+Call:
+ randomForest(formula = myFormula, data = train, importance = TRUE) 
+               Type of random forest: classification
+                     Number of trees: 500
+No. of variables tried at each split: 1
+
+        OOB estimate of  error rate: 4.65%
+Confusion matrix:
+         Very Low Low Middle High class.error
+Very Low       22   2      0    0  0.08333333
+Low             2  80      1    0  0.03614458
+Middle          0   4     83    1  0.05681818
+High            0   0      2   61  0.03174603
+> print(fit_randomForest$importance)
+     Very Low       Low    Middle      High MeanDecreaseAccuracy MeanDecreaseGini
+PEG 0.6510454 0.5934084 0.5424915 0.6146685            0.5825517        133.44260
+LPR 0.1818125 0.2433594 0.2400993 0.1302537            0.2083372         45.69439
