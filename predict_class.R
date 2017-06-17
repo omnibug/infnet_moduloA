@@ -32,12 +32,11 @@ library(ipred) # Bagging.
 library(randomForest) # Random Forest.
 library(C50) # Algoritmo C5.0.
 library(stringr) # string manipulation
-library(stringr) # string manipulation
 require('RColorBrewer') # color paletes for graphs
 
 # SET THE HOME DIR FOR WINDOWS OR LINUX ENVIRONMENTS
-homeDir='C:/Users/Carlos/Documents/MEGAsync/MIT/Modulo_A_Valor/Atual/infnet_moduloA/'
-#homeDir='/home/carlos/MEGAsync/MIT/infnet_moduloA/' 
+#homeDir='C:/Users/Carlos/Documents/MEGAsync/MIT/Modulo_A_Valor/Atual/infnet_moduloA/'
+homeDir='/home/carlos/MEGAsync/MIT/Modulo_A_Valor/Atual/infnet_moduloA/' 
 setwd(homeDir)
 
 # loading common functions
@@ -113,42 +112,42 @@ model_rpart <- function(train, test, formula) {
 model_J48 <- function(train, test, formula) {
   # -------------------------
   # ALGORITMO C4.5
-  # Cria a árvore de forma a maximixar o ganho de informação (information gain)
-  # (diferença de entropia). Chamado de J48 no Weka.
-  # Entropia: quantidade necessária de informação para identificar a classe de um caso
-  # Ganho de informação: é a redução esperada da entropia ao utilizarmos um atributo na árvore.
-  # Bom post explicativo (inglês): http://stackoverflow.com/questions/1859554/what-is-entropy-and-information-gain
+  # Cria a ?rvore de forma a maximixar o ganho de informa??o (information gain)
+  # (diferen?a de entropia). Chamado de J48 no Weka.
+  # Entropia: quantidade necess?ria de informa??o para identificar a classe de um caso
+  # Ganho de informa??o: ? a redu??o esperada da entropia ao utilizarmos um atributo na ?rvore.
+  # Bom post explicativo (ingl?s): http://stackoverflow.com/questions/1859554/what-is-entropy-and-information-gain
   # -------------------------
   
   # Criando o modelo.
   fit_J48 <- J48(formula, data=train)
   # Resumo.
   #summary(fit_J48)
-  # Fazendo predições.
+  # Fazendo predi??es.
   predict(fit_J48, test)
-  # Matriz de confusão das predições.
+  # Matriz de confus?o das predi??es.
   #table(predictions, test$UNS)
-  # Gráfico da árvore.
+  # Gr?fico da ?rvore.
   #plot(fit_J48)
 }
 
 model_PART <- function(train, test, formula) {
   # -------------------------
   # PART
-  # Sistema de regras que cria árvores de decisão C4.5 podadas e extrai regras, retirando
-  # então os dados podados do conjunto de treinamento. O processo é repetido até que 
-  # todas as instâncias sejam cobertas pelas regras extraídas.
+  # Sistema de regras que cria ?rvores de decis?o C4.5 podadas e extrai regras, retirando
+  # ent?o os dados podados do conjunto de treinamento. O processo ? repetido at? que 
+  # todas as inst?ncias sejam cobertas pelas regras extra?das.
   # 
-  # Sem visualização com gráfico!
+  # Sem visualiza??o com gr?fico!
   # -------------------------
   
   # Criando o modelo.
   fit_PART <- PART(formula, data=train)
   # Resumo.
   #summary(fit_PART)
-  # Fazendo predições.
+  # Fazendo predi??es.
   predict(fit_PART, test)
-  # Matriz de confusão das predições.
+  # Matriz de confus?o das predi??es.
   #table(predictions, test$UNS)
   #plot(fit_PART)
 }
@@ -156,35 +155,35 @@ model_PART <- function(train, test, formula) {
 model_bagging <- function(train, test, formula) {
   # -------------------------
   # BAGGING CART
-  # Bootstrapped Aggregation (Bagging) é um método ensemble, ou seja,
-  # cria múltiplos modelos do mesmo tipo a partir de amostras diferentes 
+  # Bootstrapped Aggregation (Bagging) ? um m?todo ensemble, ou seja,
+  # cria m?ltiplos modelos do mesmo tipo a partir de amostras diferentes 
   # do conjunto completo de dados. Os resultados de cada modelo separado 
-  # são combinados para oferecer um resultado melhor.
-  # Sem visualização com gráfico!
+  # s?o combinados para oferecer um resultado melhor.
+  # Sem visualiza??o com gr?fico!
   # -------------------------
   # Criando o modelo.
   fit_bagging <- bagging(formula, data=train)
   # Resumo.
   #summary(fit_bagging)
-  # Fazendo predições.
+  # Fazendo predi??es.
   predict(fit_bagging, test, type="class")
-  # Matriz de confusão das predições.
+  # Matriz de confus?o das predi??es.
   #table(predictions4, test$UNS)
 }
 
 model_C5.0 <- function(train, test, formula) {
   # -------------------------
   # ALGORITMO C5.0
-  # Evolução do algoritmo C4.5 que teve seu código fonte liberado recentemente.
+  # Evolu??o do algoritmo C4.5 que teve seu c?digo fonte liberado recentemente.
   # -------------------------
   # Criando o modelo.
-  # p parâmetro 'trials' indica o número de iterações desejado.
+  # p par?metro 'trials' indica o n?mero de itera??es desejado.
   fit_C5.0 <- C5.0(formula, data=train, trials=10)
   # Resumo.
   #print(fit_C5.0)
-  # Fazendo predições.
+  # Fazendo predi??es.
   predict(fit_C5.0, test)
-  # Gráfico da árvore.
+  # Gr?fico da ?rvore.
   #plot(fit_C5.0)
 }
 
@@ -231,7 +230,7 @@ model_accuracies[i] <- prediction_metrics(model_rpart(train, testx, myFormula), 
 
 # -------------------------
 # ALGORITMO C4.5
-# Cria a árvore de forma a maximixar o ganho de informação (information gain)
+# Cria a ?rvore de forma a maximixar o ganho de informa??o (information gain)
 # -------------------------
 #run model - Calculate and print metrics
 i <- i + 1
@@ -240,7 +239,7 @@ model_accuracies[i] <- prediction_metrics(model_J48(train, testx, myFormula), te
 
 # -------------------------
 # PART
-# Sistema de regras que cria árvores de decisão C4.5 podadas e extrai regras
+# Sistema de regras que cria ?rvores de decis?o C4.5 podadas e extrai regras
 # -------------------------
 #run model - Calculate and print metrics
 i <- i + 1
@@ -258,7 +257,7 @@ model_accuracies[i] <- prediction_metrics(model_bagging(train, testx, myFormula)
 
 # -------------------------
 # RANDOM FOREST
-# Variação do Bagging de árvores de decisao
+# Varia??o do Bagging de ?rvores de decisao
 # -------------------------
 #run model - Calculate and print metrics
 i <- i + 1
@@ -267,7 +266,7 @@ model_accuracies[i] <- prediction_metrics(model_randomForest(train, testx, myFor
 
 # -------------------------
 # ALGORITMO C5.0
-# Evolução do algoritmo C4.5 que teve seu código fonte liberado recentemente.
+# Evolu??o do algoritmo C4.5 que teve seu c?digo fonte liberado recentemente.
 # -------------------------
 #run model - Calculate and print metrics
 i <- i + 1

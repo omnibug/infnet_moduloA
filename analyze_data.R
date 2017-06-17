@@ -30,8 +30,8 @@ library(reshape)
 library(ggplot2)
 
 # SET THE HOME DIR FOR WINDOWS OR LINUX ENVIRONMENTS
-homeDir='C:/Users/Carlos/Documents/MEGAsync/MIT/Modulo_A_Valor/Atual/infnet_moduloA/'
-#homeDir='/home/carlos/MEGAsync/MIT/infnet_moduloA/' 
+#homeDir='C:/Users/Carlos/Documents/MEGAsync/MIT/Modulo_A_Valor/Atual/infnet_moduloA/'
+homeDir='/home/carlos/MEGAsync/MIT/Modulo_A_Valor/Atual/infnet_moduloA/' 
 setwd(homeDir)
 
 # loading common functions
